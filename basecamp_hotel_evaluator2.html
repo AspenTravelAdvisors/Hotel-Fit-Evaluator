@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Base Camp AI Guide · Luxury Hotel Fit Evaluator</title>
+  <style>
+    :root {
+      --bg: #f7f4ef;
+      --panel: #fffaf2;
+      --ink: #1f2623;
+      --muted: #66716b;
+      --line: #ded5c8;
+      --accent: #8a6f45;
+      --accent-dark: #5e482a;
+      --good: #315f45;
+      --warn: #8a5a1f;
+      --bad: #873b35;
+      --chip: #efe5d4;
+      --shadow: 0 18px 60px rgba(31, 38, 35, .12);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, #fffdf8 0, var(--bg) 38%, #eee6d9 100%);
+      color: var(--ink);
+      line-height: 1.45;
+    }
+    header {
+      padding: 42px 22px 20px;
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: .16em;
+      font-size: 12px;
+      color: var(--accent-dark);
+      font-weight: 750;
+    }
+    h1 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(34px, 5vw, 62px);
+      line-height: .98;
+      margin: 10px 0 14px;
+      max-width: 940px;
+      letter-spacing: -.04em;
+    }
+    .lede {
+      font-size: 18px;
+      color: var(--muted);
+      max-width: 850px;
+      margin: 0;
+    }
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 18px 22px 60px;
+      display: grid;
+      grid-template-columns: minmax(320px, 430px) 1fr;
+      gap: 22px;
+      align-items: start;
+    }
+    @media (max-width: 980px) { main { grid-template-columns: 1fr; } }
+    .card {
+      background: rgba(255,250,242,.92);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .card h2, .card h3 { margin: 0; }
+    .card-head {
+      padding: 20px 22px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,.38);
+    }
+    .card-body { padding: 22px; }
+    label {
+      display: block;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--accent-dark);
+      font-weight: 800;
+      margin: 16px 0 7px;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 12px 13px;
+      border: 1px solid #cfc4b4;
+      border-radius: 12px;
+      background: #fffdf8;
+      color: var(--ink);
+      font: inherit;
+      outline: none;
+    }
+    textarea { min-height: 94px; resize: vertical; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+    button {
+      appearance: none;
+      border: 1px solid var(--accent-dark);
+      background: var(--accent-dark);
+      color: white;
+      padding: 11px 14px;
+      border-radius: 999px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform .12s ease, opacity .12s ease;
+    }
+    button:hover { transform: translateY(-1px); }
+    button.secondary { background: transparent; color: var(--accent-dark); }
+    button.ghost { border-color: var(--line); background: #fffaf2; color: var(--ink); }
+    .hint { color: var(--muted); font-size: 13px; margin-top: 8px; }
+    .upload {
+      border: 1px dashed #b8aa96;
+      border-radius: 18px;
+      padding: 18px;
+      background: #fffdf8;
+      margin-top: 20px;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--chip);
+      color: var(--accent-dark);
+      font-size: 12px;
+      font-weight: 750;
+    }
+    .results { display: grid; gap: 16px; }
+    .result-card {
+      background: #fffdf8;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+    }
+    .result-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 14px;
+      margin-bottom: 14px;
+    }
+    .hotel-name {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 25px;
+      line-height: 1.05;
+      margin: 0 0 6px;
+    }
+    .category {
+      display: inline-block;
+      padding: 7px 10px;
+      background: #1f2623;
+      color: white;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+    .score {
+      font-size: 34px;
+      font-weight: 900;
+      letter-spacing: -.04em;
+      text-align: right;
+    }
+    .score small { display: block; font-size: 11px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
+    .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    @media (max-width: 780px) { .grid3 { grid-template-columns: 1fr; } .result-top { flex-direction: column; } .score { text-align: left; } }
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fffaf2;
+    }
+    .metric b { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--accent-dark); }
+    .bar {
+      height: 8px;
+      background: #eadfce;
+      border-radius: 999px;
+      margin-top: 9px;
+      overflow: hidden;
+    }
+    .bar span { display: block; height: 100%; background: var(--accent-dark); border-radius: 999px; }
+    .copy {
+      background: #f4ecdf;
+      border-left: 4px solid var(--accent);
+      padding: 12px 14px;
+      border-radius: 12px;
+      color: #3a3328;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+    .flags { margin: 12px 0 0; padding-left: 18px; color: var(--muted); }
+    .empty {
+      padding: 36px;
+      text-align: center;
+      color: var(--muted);
+      border: 1px dashed #b8aa96;
+      border-radius: 22px;
+      background: rgba(255,250,242,.58);
+    }
+    .rubric table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .rubric th, .rubric td { text-align: left; border-bottom: 1px solid var(--line); padding: 10px 8px; vertical-align: top; }
+    .rubric th { color: var(--accent-dark); text-transform: uppercase; letter-spacing: .08em; font-size: 11px; }
+    details { margin-top: 16px; }
+    summary { cursor: pointer; font-weight: 850; color: var(--accent-dark); }
+    .small { font-size: 12px; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="eyebrow">Base Camp AI Guide · Training Rubric</div>
+    <h1>Luxury Hotel Fit Evaluator</h1>
+    <p class="lede">Submit one property or upload a CSV. The tool scores each hotel by guest fit, VIP value, service style, location, room quality, privacy, logistics, and seasonality — then places it into the right category for advisor-backed recommendations.</p>
+  </header>
+
+  <main>
+    <section class="card">
+      <div class="card-head">
+        <h2>Evaluate a property</h2>
+        <p class="hint">Use the form for one hotel, or upload a CSV with columns like name, brand, location, style, setting, roomQuality, vipValue, privacy, family, wellness, adventure, dining, logistics, seasonality, notes.</p>
+      </div>
+      <div class="card-body">
+        <label>Hotel / Property Name</label>
+        <input id="name" placeholder="Aman Venice, Four Seasons Resort Bora Bora…" />
+
+        <div class="row">
+          <div>
+            <label>Brand / Collection</label>
+            <input id="brand" placeholder="Four Seasons, Rosewood, Belmond…" />
+          </div>
+          <div>
+            <label>Location</label>
+            <input id="location" placeholder="City, beach, island, mountain…" />
+          </div>
+        </div>
+
+        <label>Primary Setting</label>
+        <select id="setting">
+          <option value="city">City / urban</option>
+          <option value="beach">Beach / coastal</option>
+          <option value="island">Private island / remote island</option>
+          <option value="mountain">Mountain / ski / alpine</option>
+          <option value="safari">Safari / expedition lodge</option>
+          <option value="countryside">Countryside / vineyard / estate</option>
+          <option value="wellness">Wellness retreat</option>
+        </select>
+
+        <label>Service + Atmosphere</label>
+        <select id="style">
+          <option value="classic">Classic, polished, grand luxury</option>
+          <option value="warm">Warm, personal, residential luxury</option>
+          <option value="private">Discreet, ultra-private, low-scene</option>
+          <option value="design">Design-led, stylish, scene-forward</option>
+          <option value="relaxed">Relaxed, resort-style, high-touch</option>
+          <option value="adventure">Active, expedition, guide-led</option>
+        </select>
+
+        <div class="row">
+          <div><label>Room/Suite Quality 1–10</label><input id="roomQuality" type="number" min="1" max="10" value="8" /></div>
+          <div><label>VIP Value 1–10</label><input id="vipValue" type="number" min="1" max="10" value="8" /></div>
+        </div>
+        <div class="row">
+          <div><label>Privacy 1–10</label><input id="privacy" type="number" min="1" max="10" value="7" /></div>
+          <div><label>Family Fit 1–10</label><input id="family" type="number" min="1" max="10" value="6" /></div>
+        </div>
+        <div class="row">
+          <div><label>Wellness/Spa 1–10</label><input id="wellness" type="number" min="1" max="10" value="7" /></div>
+          <div><label>Adventure/Experiences 1–10</label><input id="adventure" type="number" min="1" max="10" value="6" /></div>
+        </div>
+        <div class="row">
+          <div><label>Dining 1–10</label><input id="dining" type="number" min="1" max="10" value="8" /></div>
+          <div><label>Logistics Ease 1–10</label><input id="logistics" type="number" min="1" max="10" value="7" /></div>
+        </div>
+        <div class="row">
+          <div><label>Seasonality Reliability 1–10</label><input id="seasonality" type="number" min="1" max="10" value="7" /></div>
+          <div><label>Sense of Place 1–10</label><input id="senseOfPlace" type="number" min="1" max="10" value="8" /></div>
+        </div>
+
+        <label>Notes / Known Strengths / Risks</label>
+        <textarea id="notes" placeholder="Example: strong upgrade path in shoulder season; remote transfer; excellent spa; base rooms underwhelming; scene-heavy at peak periods."></textarea>
+
+        <div class="btns">
+          <button onclick="evaluateSingle()">Evaluate property</button>
+          <button class="secondary" onclick="loadSample()">Load sample</button>
+          <button class="ghost" onclick="clearAll()">Clear</button>
+        </div>
+
+        <div class="upload">
+          <h3>CSV upload</h3>
+          <input id="csv" type="file" accept=".csv,text/csv" />
+          <p class="hint">CSV headers are flexible. Suggested: name, brand, location, setting, style, roomQuality, vipValue, privacy, family, wellness, adventure, dining, logistics, seasonality, senseOfPlace, notes.</p>
+          <button class="secondary" onclick="handleCSV()">Evaluate CSV</button>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div id="output" class="empty">Results will appear here after you evaluate a property or upload a CSV.</div>
+
+      <details class="card rubric">
+        <summary class="card-head">View category definitions and scoring rubric</summary>
+        <div class="card-body">
+          <table>
+            <thead><tr><th>Category</th><th>Best guest match</th><th>Primary signals</th></tr></thead>
+            <tbody>
+              <tr><td>Ultra-Private Retreat</td><td>UHNW, honeymoon, privacy-first travelers</td><td>High privacy, low scene, strong rooms/villas, secluded setting</td></tr>
+              <tr><td>Classic Grand Luxury</td><td>Guests who value polish, tradition, status, flawless service</td><td>Classic style, strong service, city or iconic resort, high dining</td></tr>
+              <tr><td>Design & Scene Hotel</td><td>Stylish travelers, celebrations, social guests</td><td>Design-led style, atmosphere, bars/restaurants, photogenic setting</td></tr>
+              <tr><td>Family Luxury Resort</td><td>Families and multi-generational trips</td><td>Family fit, logistics, room layout, pool/beach, dining flexibility</td></tr>
+              <tr><td>Wellness & Recovery Retreat</td><td>Spa, wellness, reset, post-expedition recovery</td><td>Wellness score, calm setting, privacy, dining quality</td></tr>
+              <tr><td>Active / Expedition Base</td><td>Adventure travelers, expedition pre/post, safari, ski, outdoor</td><td>Adventure, logistics, setting, guide-led experiences, sense of place</td></tr>
+              <tr><td>City Power Stay</td><td>Business, short stay, culture, shopping, dining access</td><td>Urban setting, logistics, dining, service reliability, location</td></tr>
+              <tr><td>Best Value Within Luxury</td><td>Travelers who want VIP benefits and smarter luxury value</td><td>Strong VIP value, good rooms, easy logistics, reliable experience</td></tr>
+            </tbody>
+          </table>
+          <p class="small">Training principle: the best hotel is not the highest overall score. It is the best fit for the guest’s purpose, style, room needs, season, tolerance for logistics, and value psychology.</p>
+        </div>
+      </details>
+    </section>
+  </main>
+
+<script>
+function n(id, fallback = 0) {
+  const val = Number(document.getElementById(id)?.value);
+  return Number.isFinite(val) ? Math.max(1, Math.min(10, val)) : fallback;
+}
+function text(id) { return (document.getElementById(id)?.value || '').trim(); }
+function propertyFromForm() {
+  return {
+    name: text('name') || 'Unnamed Property', brand: text('brand'), location: text('location'),
+    setting: text('setting'), style: text('style'), roomQuality: n('roomQuality', 7), vipValue: n('vipValue', 7),
+    privacy: n('privacy', 6), family: n('family', 5), wellness: n('wellness', 6), adventure: n('adventure', 5),
+    dining: n('dining', 7), logistics: n('logistics', 7), seasonality: n('seasonality', 7), senseOfPlace: n('senseOfPlace', 7), notes: text('notes')
+  };
+}
+function overallScore(p) {
+  const weights = { roomQuality: 1.25, vipValue: 1.2, privacy: .9, family: .65, wellness: .8, adventure: .7, dining: .95, logistics: .95, seasonality: .85, senseOfPlace: .9 };
+  let total = 0, denom = 0;
+  Object.entries(weights).forEach(([k,w]) => { total += (Number(p[k]) || 0) * w; denom += 10 * w; });
+  return Math.round((total / denom) * 100);
+}
+function scoreCategories(p) {
+  const is = (x) => (p.setting || '').toLowerCase() === x || (p.style || '').toLowerCase() === x;
+  return {
+    'Ultra-Private Retreat': p.privacy*2 + p.roomQuality*1.2 + p.wellness*.8 + p.logistics*.3 + (is('private')?12:0) + (is('island')?8:0),
+    'Classic Grand Luxury': p.roomQuality*1.3 + p.dining*1.1 + p.vipValue*1.1 + p.logistics*.8 + (is('classic')?14:0) + (is('city')?5:0),
+    'Design & Scene Hotel': p.dining*1.2 + p.senseOfPlace*1.1 + p.roomQuality*.9 + (is('design')?18:0) + (is('city')?6:0),
+    'Family Luxury Resort': p.family*2 + p.logistics*1.2 + p.roomQuality*.9 + p.dining*.8 + ((is('beach')||is('mountain'))?8:0),
+    'Wellness & Recovery Retreat': p.wellness*2 + p.privacy*1.1 + p.dining*.7 + p.senseOfPlace*.7 + (is('wellness')?14:0),
+    'Active / Expedition Base': p.adventure*2 + p.logistics*1.1 + p.senseOfPlace*1.2 + p.roomQuality*.6 + ((is('safari')||is('mountain')||is('adventure'))?12:0),
+    'City Power Stay': p.logistics*1.7 + p.dining*1.1 + p.vipValue*.9 + p.roomQuality*.8 + (is('city')?16:0),
+    'Best Value Within Luxury': p.vipValue*2 + p.roomQuality*1.1 + p.logistics*1 + p.seasonality*.8 + p.dining*.6
+  };
+}
+function bestCategory(p) {
+  const scores = scoreCategories(p);
+  return Object.entries(scores).sort((a,b) => b[1]-a[1])[0][0];
+}
+function categoryCopy(cat) {
+  const map = {
+    'Ultra-Private Retreat': 'Best for guests who want discretion, space, privacy, villa-style comfort, and a stay that feels removed from the public stage.',
+    'Classic Grand Luxury': 'Best for guests who value polished service, reputation, status recognition, classic design, and a highly reliable luxury experience.',
+    'Design & Scene Hotel': 'Best for stylish travelers who want energy, restaurants, bars, photogenic design, and a hotel that feels current rather than quiet.',
+    'Family Luxury Resort': 'Best for families and multi-generational travelers who need room configuration, pool/beach ease, dining flexibility, and low-friction logistics.',
+    'Wellness & Recovery Retreat': 'Best for spa, wellness, reset, jet-lag recovery, post-expedition recovery, and travelers who want a calmer rhythm.',
+    'Active / Expedition Base': 'Best for adventurous luxury guests who care about guides, access, outdoor experiences, outfitting, logistics, and sense of place.',
+    'City Power Stay': 'Best for short stays, business, culture, shopping, dining access, and travelers who want everything to work smoothly.',
+    'Best Value Within Luxury': 'Best for guests who want the strongest combination of luxury quality, VIP benefits, upgrade potential, and overall value without chasing the cheapest rate.'
+  };
+  return map[cat] || '';
+}
+function flags(p) {
+  const out = [];
+  if (p.roomQuality <= 6) out.push('Room/category caution: lead-in rooms may not deliver the expected luxury experience. Recommend steering to a better category.');
+  if (p.logistics <= 5) out.push('Logistics caution: transfers, layout, stairs, remoteness, or access friction should be disclosed early.');
+  if (p.seasonality <= 5) out.push('Seasonality caution: weather, crowds, closures, seaweed, smoke, or peak occupancy may materially change the experience.');
+  if (p.vipValue >= 8) out.push('Strong advisor value: position same rate as booking direct with VIP benefits, priority upgrade potential, and better value within luxury.');
+  if (p.privacy <= 4 && p.style === 'design') out.push('Scene risk: likely better for social/design-driven guests than privacy-first honeymoon or UHNW travelers.');
+  if (p.family <= 4) out.push('Family caution: do not recommend as a default family fit without confirming rooms, bedding, dining, and pool/beach details.');
+  if (!out.length) out.push('No major mismatch flags based on submitted data. Validate against dates, exact room category, and current renovation/occupancy status.');
+  return out;
+}
+function advisorPositioning(p, cat) {
+  const location = p.location ? ` in ${p.location}` : '';
+  return `${p.name}${location} is strongest as a ${cat.toLowerCase()} match. Lead with ${categoryCopy(cat).toLowerCase()} For advisor positioning, frame the recommendation around the exact room category, realistic upgrade path, VIP benefits, seasonality, and why this property is the better value within luxury for the right guest — not simply the highest-rated hotel overall.`;
+}
+function render(properties) {
+  const html = properties.map(p => {
+    const score = overallScore(p), cat = bestCategory(p), riskFlags = flags(p);
+    const metrics = [
+      ['Rooms', p.roomQuality], ['VIP Value', p.vipValue], ['Privacy', p.privacy], ['Family', p.family], ['Wellness', p.wellness], ['Adventure', p.adventure], ['Dining', p.dining], ['Logistics', p.logistics], ['Seasonality', p.seasonality]
+    ].map(([label,val]) => `<div class="metric"><b>${label}</b><div class="bar"><span style="width:${val*10}%"></span></div><span class="small">${val}/10</span></div>`).join('');
+    return `<article class="result-card">
+      <div class="result-top">
+        <div>
+          <h3 class="hotel-name">${escapeHTML(p.name)}</h3>
+          <div class="small">${escapeHTML([p.brand, p.location, p.setting, p.style].filter(Boolean).join(' · '))}</div>
+          <div class="chips"><span class="chip">${cat}</span><span class="chip">${score >= 82 ? 'High confidence' : score >= 68 ? 'Good candidate' : 'Needs advisor review'}</span></div>
+        </div>
+        <div class="score">${score}<small>Fit Score</small></div>
+      </div>
+      <p><b>Category:</b> <span class="category">${cat}</span></p>
+      <p>${categoryCopy(cat)}</p>
+      <div class="grid3">${metrics}</div>
+      <ul class="flags">${riskFlags.map(f => `<li>${escapeHTML(f)}</li>`).join('')}</ul>
+      ${p.notes ? `<p class="copy"><b>Submitted notes:</b> ${escapeHTML(p.notes)}</p>` : ''}
+      <p class="copy"><b>Advisor positioning:</b> ${escapeHTML(advisorPositioning(p, cat))}</p>
+    </article>`;
+  }).join('');
+  document.getElementById('output').className = 'results';
+  document.getElementById('output').innerHTML = html;
+}
+function evaluateSingle(){ render([propertyFromForm()]); }
+function loadSample(){
+  const sample = { name:'Four Seasons Resort Bora Bora', brand:'Four Seasons Preferred Partner', location:'Bora Bora, French Polynesia', setting:'island', style:'relaxed', roomQuality:9, vipValue:9, privacy:8, family:8, wellness:8, adventure:7, dining:8, logistics:6, seasonality:7, senseOfPlace:9, notes:'Excellent overwater bungalow and villa appeal; strong honeymoon and family fit; disclose transfer complexity and seasonal weather considerations.' };
+  Object.entries(sample).forEach(([k,v]) => { const el = document.getElementById(k); if(el) el.value = v; });
+  evaluateSingle();
+}
+function clearAll(){
+  document.querySelectorAll('input:not([type=file]), textarea').forEach(el => el.value = '');
+  document.getElementById('output').className = 'empty';
+  document.getElementById('output').innerHTML = 'Results will appear here after you evaluate a property or upload a CSV.';
+}
+function handleCSV(){
+  const file = document.getElementById('csv').files[0];
+  if (!file) { alert('Choose a CSV file first.'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    const rows = parseCSV(e.target.result);
+    if (!rows.length) { alert('No rows found.'); return; }
+    const headers = rows[0].map(h => h.trim());
+    const data = rows.slice(1).filter(r => r.some(Boolean)).map(row => rowToProperty(headers, row));
+    render(data);
+  };
+  reader.readAsText(file);
+}
+function rowToProperty(headers, row){
+  const obj = {};
+  headers.forEach((h,i) => obj[h.toLowerCase().replace(/[^a-z0-9]/g,'')] = row[i]);
+  const get = (...keys) => keys.map(k => obj[k.toLowerCase().replace(/[^a-z0-9]/g,'')]).find(v => v !== undefined && v !== '') || '';
+  const num = (...keys) => Math.max(1, Math.min(10, Number(get(...keys)) || 6));
+  return {
+    name: get('name','hotel','property','propertyname') || 'Unnamed Property', brand: get('brand','collection'), location: get('location','destination'),
+    setting: normalizeSetting(get('setting','primarysetting','type')), style: normalizeStyle(get('style','service','atmosphere','servicestyle')),
+    roomQuality: num('roomQuality','rooms','room','suite','suiteQuality'), vipValue: num('vipValue','vip','benefits','advisorValue'), privacy: num('privacy','exclusivity'), family: num('family','familyFit','kids'), wellness: num('wellness','spa'), adventure: num('adventure','experiences','activities'), dining: num('dining','food','fb'), logistics: num('logistics','ease','access'), seasonality: num('seasonality','weather','reliability'), senseOfPlace: num('senseOfPlace','place','design'), notes: get('notes','description','comments')
+  };
+}
+function normalizeSetting(v){
+  v = String(v||'').toLowerCase();
+  if(v.includes('beach')||v.includes('coast')) return 'beach';
+  if(v.includes('island')) return 'island';
+  if(v.includes('ski')||v.includes('mountain')||v.includes('alpine')) return 'mountain';
+  if(v.includes('safari')||v.includes('lodge')) return 'safari';
+  if(v.includes('wellness')||v.includes('spa')) return 'wellness';
+  if(v.includes('country')||v.includes('vineyard')||v.includes('estate')) return 'countryside';
+  return 'city';
+}
+function normalizeStyle(v){
+  v = String(v||'').toLowerCase();
+  if(v.includes('private')||v.includes('discreet')||v.includes('aman')) return 'private';
+  if(v.includes('design')||v.includes('scene')||v.includes('style')) return 'design';
+  if(v.includes('warm')||v.includes('residential')) return 'warm';
+  if(v.includes('relaxed')||v.includes('resort')) return 'relaxed';
+  if(v.includes('adventure')||v.includes('expedition')) return 'adventure';
+  return 'classic';
+}
+function parseCSV(str){
+  const rows = []; let row = [], cell = '', quote = false;
+  for(let i=0; i<str.length; i++){
+    const c = str[i], next = str[i+1];
+    if(c === '"' && quote && next === '"'){ cell += '"'; i++; }
+    else if(c === '"'){ quote = !quote; }
+    else if(c === ',' && !quote){ row.push(cell); cell=''; }
+    else if((c === '\n' || c === '\r') && !quote){ if(c === '\r' && next === '\n') i++; row.push(cell); rows.push(row); row=[]; cell=''; }
+    else cell += c;
+  }
+  if(cell || row.length){ row.push(cell); rows.push(row); }
+  return rows;
+}
+function escapeHTML(str){ return String(str || '').replace(/[&<>'"]/g, t => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[t])); }
+</script>
+</body>
+</html>
